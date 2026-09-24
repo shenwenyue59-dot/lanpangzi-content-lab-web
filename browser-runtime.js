@@ -10,7 +10,7 @@
   const status=document.querySelector('#metricReadStatus');
   try{
    if(!window.Tesseract)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='vendor/tesseract.min.js';script.onload=resolve;script.onerror=()=>{script.remove();reject(Error('图片识别组件加载失败，请检查网络或粘贴文字'))};document.head.appendChild(script)});
-   worker=await Tesseract.createWorker('chi_sim',1,{workerPath:new URL('vendor/worker.min.js',document.baseURI).href,corePath:new URL('vendor/core/',document.baseURI).href,langPath:new URL('vendor/lang',document.baseURI).href,gzip:false,logger:m=>{if(status)status.textContent='正在本机识别图片… '+Math.round((m.progress||0)*100)+'%（首次需下载识别组件）'}});
+   worker=await Tesseract.createWorker('chi_sim+eng',1,{workerPath:new URL('vendor/worker.min.js',document.baseURI).href,corePath:new URL('vendor/core/',document.baseURI).href,langPath:new URL('vendor/lang',document.baseURI).href,gzip:false,logger:m=>{if(status)status.textContent='正在本机识别图片… '+Math.round((m.progress||0)*100)+'%（首次需下载识别组件）'}});
    const bitmap=await createImageBitmap(await(await fetch(image)).blob());const scale=Math.min(2,4000/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();await worker.setParameters({tessedit_pageseg_mode:'6'});const result=await worker.recognize(canvas);return {text:result.data.text};
   }catch(e){throw Error('图片识别未完成，请换清晰截图或粘贴文字。'+(e.message||''))}
   finally{recognizing=false;if(worker)await worker.terminate()}
